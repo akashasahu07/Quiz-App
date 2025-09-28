@@ -111,4 +111,52 @@ function startQuiz() {
     currentQuestionIndex = 0;
     score = 0;
     nextButton.innerHTML = "Next";
+    nextButton.style.display = "none";
+    showQuestion();
 }
+
+function showQuestion() {
+    resetState();
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        button.addEventListener("click", () => selectAnswer(answer));
+        answerButton.appendChild(button);
+    });
+}
+
+function resetState() {
+    nextButton.style.display = "none";
+    answerButton.innerHTML = "";
+}
+
+function selectAnswer(answer) {
+    if (answer.correct) {
+        score++;
+    }
+    nextButton.style.display = "block";
+}
+
+nextButton.addEventListener("click", () => {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        showQuestion();
+    } else {
+        showScore();
+    }
+});
+
+function showScore() {
+    resetState();
+    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextButton.innerHTML = "Play Again";
+    nextButton.style.display = "block";
+    nextButton.addEventListener("click", startQuiz);
+}
+
+startQuiz();
