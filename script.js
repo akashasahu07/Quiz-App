@@ -103,29 +103,49 @@ const questions = [
 const questionElement = document.getElementById("question");
 const answerButton = document.getElementById("answer-buttons");
 const nextButton = document.getElementById("next-btn");
+const darkModeToggle = document.getElementById("darkModeToggle");
+const progressFill = document.getElementById("progressFill");
 
 let currentQuestionIndex = 0;
 let score = 0;
+let answered = false;
+
+// Dark mode functionality
+darkModeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    const icon = darkModeToggle.querySelector("i");
+    if (document.body.classList.contains("dark-mode")) {
+        icon.classList.remove("fa-moon");
+        icon.classList.add("fa-sun");
+    } else {
+        icon.classList.remove("fa-sun");
+        icon.classList.add("fa-moon");
+    }
+});
 
 function startQuiz() {
     currentQuestionIndex = 0;
     score = 0;
-    nextButton.innerHTML = "Next";
-    nextButton.style.display = "none";
+    nextButton.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
     showQuestion();
 }
 
 function showQuestion() {
     resetState();
+    answered = false;
     let currentQuestion = questions[currentQuestionIndex];
     let questionNo = currentQuestionIndex + 1;
     questionElement.innerHTML = questionNo + ". " + currentQuestion.question;
+
+    // Update progress bar
+    const progress = ((currentQuestionIndex) / questions.length) * 100;
+    progressFill.style.width = progress + "%";
 
     currentQuestion.answers.forEach(answer => {
         const button = document.createElement("button");
         button.innerHTML = answer.text;
         button.classList.add("btn");
-        button.addEventListener("click", () => selectAnswer(answer));
+        button.addEventListener("click", () => selectAnswer(answer, button));
         answerButton.appendChild(button);
     });
 }
@@ -135,10 +155,28 @@ function resetState() {
     answerButton.innerHTML = "";
 }
 
-function selectAnswer(answer) {
+function selectAnswer(answer, button) {
+    if (answered) return;
+    answered = true;
+
+    const buttons = answerButton.querySelectorAll(".btn");
+
     if (answer.correct) {
+        button.classList.add("correct");
         score++;
+    } else {
+        button.classList.add("incorrect");
+        // Show correct answer
+        buttons.forEach(btn => {
+            const btnText = btn.innerHTML;
+            const correctAnswer = questions[currentQuestionIndex].answers.find(a => a.correct);
+            if (btnText === correctAnswer.text) {
+                btn.classList.add("correct");
+            }
+        });
     }
+
+    buttons.forEach(btn => btn.disabled = true);
     nextButton.style.display = "block";
 }
 
@@ -153,10 +191,47 @@ nextButton.addEventListener("click", () => {
 
 function showScore() {
     resetState();
-    questionElement.innerHTML = `You scored ${score} out of ${questions.length}!`;
-    nextButton.innerHTML = "Play Again";
+    progressFill.style.width = "100%";
+
+    const percentage = Math.round((score / questions.length) * 100);
+    let icon = '<i class="fas fa-smile"></i>';
+    let iconColor = "#667eea";
+    let message = "Good job!";
+
+    if (percentage === 100) {
+        icon = '<i class="fas fa-trophy"></i>';
+        iconColor = "#ffd700";
+        message = "Perfect Score!";
+    } else if (percentage >= 80) {
+        icon = '<i class="fas fa-star"></i>';
+        iconColor = "#ff6b6b";
+        message = "Excellent!";
+    } else if (percentage >= 60) {
+        icon = '<i class="fas fa-thumbs-up"></i>';
+        iconColor = "#4caf50";
+        message = "Well done!";
+    } else if (percentage >= 40) {
+        icon = '<i class="fas fa-book"></i>';
+        iconColor = "#2196f3";
+        message = "Keep practicing!";
+    } else {
+        icon = '<i class="fas fa-dumbbell"></i>';
+        iconColor = "#ff9800";
+        message = "Don't give up!";
+    }
+
+    questionElement.innerHTML = `
+                <div class="score-container">
+                    <div class="score-icon" style="color: ${iconColor}">${icon}</div>
+                    <div class="score-text">${message}</div>
+                    <div class="score-percentage">${percentage}%</div>
+                    <div class="score-text">You scored ${score} out of ${questions.length}</div>
+                </div>
+            `;
+
+    nextButton.innerHTML = 'Play Again <i class="fas fa-redo"></i>';
     nextButton.style.display = "block";
-    nextButton.addEventListener("click", startQuiz);
+    nextButton.onclick = startQuiz;
 }
 
 startQuiz();

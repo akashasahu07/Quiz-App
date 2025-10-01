@@ -5,14 +5,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div id="quiz-container">
-        <h1 id="question">Quiz App</h1>
-        <h2 id="answer-buttons">Question Here</h2>
-        <button id="next-btn" class="btn">Next</button>
+        <div class="header">
+            <div class="app-title">
+                <i class="fas fa-brain"></i>
+                Quiz Master
+            </div>
+            <button class="dark-mode-toggle" id="darkModeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <h1 id="question">Question will appear here</h1>
+        <div id="answer-buttons"></div>
+        <button id="next-btn">Next <i class="fas fa-arrow-right"></i></button>
     </div>
 
     <script src="script.js"></script>
